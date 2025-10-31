@@ -8,6 +8,10 @@ final class StatusBarController {
     init(popover: NSPopover) {
         self.popover = popover
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        self.eventMonitor = EventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self, self.popover.isShown else { return }
+            self.hidePopover(event)
+        }
 
         if let button = statusItem.button {
             if let image = NSImage(systemSymbolName: "text.cursor", accessibilityDescription: "Comma Replacer") {
@@ -20,10 +24,6 @@ final class StatusBarController {
             button.target = self
         }
 
-        self.eventMonitor = EventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            guard let self, self.popover.isShown else { return }
-            self.hidePopover(event)
-        }
         eventMonitor.start()
     }
 
